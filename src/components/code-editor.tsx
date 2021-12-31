@@ -1,22 +1,18 @@
-import { useRef } from "react";
-import MonacoEditor, { EditorDidMount } from "@monaco-editor/react";
-import codeShift from "jscodeshift";
-import Highlighter from "monaco-jsx-highlighter";
-
-// Prettier Imports
-import prettier from "prettier";
-import parser from "prettier/parser-babel";
-
-// CSS
 import "./code-editor.css";
 import "./syntax.css";
+import { useRef } from "react";
+import MonacoEditor, { EditorDidMount } from "@monaco-editor/react";
+import prettier from "prettier";
+import parser from "prettier/parser-babel";
+import codeShift from "jscodeshift";
+import Highlighter from "monaco-jsx-highlighter";
 
 interface CodeEditorProps {
   initialValue: string;
   onChange(value: string): void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
   const editorRef = useRef<any>();
 
   const onEditorDidMount: EditorDidMount = (getValue, monacoEditor) => {
@@ -34,7 +30,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
       monacoEditor
     );
     highlighter.highLightOnDidChangeModelContent(
-      () => {}, // All these empty functions are just to not show errors while parsing JSX with every key stroke
+      () => {},
       () => {},
       undefined,
       () => {}
@@ -42,8 +38,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
   };
 
   const onFormatClick = () => {
+    // get current value from editor
     const unformatted = editorRef.current.getModel().getValue();
 
+    // format that value
     const formatted = prettier
       .format(unformatted, {
         parser: "babel",
@@ -52,8 +50,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
         semi: true,
         singleQuote: true,
       })
-      .replace(/\n$/, ""); // To remove the extra new line after formatting
+      .replace(/\n$/, "");
 
+    // set the formatted value back in the editor
     editorRef.current.setValue(formatted);
   };
 
@@ -66,11 +65,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
         Format
       </button>
       <MonacoEditor
-        value={initialValue}
         editorDidMount={onEditorDidMount}
-        height="100%"
-        language="javascript"
+        value={initialValue}
         theme="dark"
+        language="javascript"
+        height="100%"
         options={{
           wordWrap: "on",
           minimap: { enabled: false },
@@ -78,7 +77,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
           folding: false,
           lineNumbersMinChars: 3,
           fontSize: 16,
-          scrollBeyondLastLine: true,
+          scrollBeyondLastLine: false,
           automaticLayout: true,
         }}
       />
