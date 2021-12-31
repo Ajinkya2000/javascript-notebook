@@ -1,9 +1,15 @@
 import { useRef } from "react";
 import MonacoEditor, { EditorDidMount } from "@monaco-editor/react";
+import codeShift from "jscodeshift";
+import Highlighter from "monaco-jsx-highlighter";
 
 // Prettier Imports
 import prettier from "prettier";
 import parser from "prettier/parser-babel";
+
+// CSS
+import "./code-editor.css";
+import "./syntax.css";
 
 interface CodeEditorProps {
   initialValue: string;
@@ -20,25 +26,45 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
     });
 
     monacoEditor.getModel()?.updateOptions({ tabSize: 2 });
+
+    const highlighter = new Highlighter(
+      // @ts-ignore
+      window.monaco,
+      codeShift,
+      monacoEditor
+    );
+    highlighter.highLightOnDidChangeModelContent(
+      () => {}, // All these empty functions are just to not show errors while parsing JSX with every key stroke
+      () => {},
+      undefined,
+      () => {}
+    );
   };
 
   const onFormatClick = () => {
     const unformatted = editorRef.current.getModel().getValue();
 
-    const formatted = prettier.format(unformatted, {
-      parser: "babel",
-      plugins: [parser],
-      useTabs: false,
-      semi: true,
-      singleQuote: true,
-    });
+    const formatted = prettier
+      .format(unformatted, {
+        parser: "babel",
+        plugins: [parser],
+        useTabs: false,
+        semi: true,
+        singleQuote: true,
+      })
+      .replace(/\n$/, ""); // To remove the extra new line after formatting
 
     editorRef.current.setValue(formatted);
   };
 
   return (
-    <div>
-      <button onClick={onFormatClick}>Format</button>
+    <div className="editor-wrapper">
+      <button
+        className="button button-format is-primary is-small"
+        onClick={onFormatClick}
+      >
+        Format
+      </button>
       <MonacoEditor
         value={initialValue}
         editorDidMount={onEditorDidMount}
