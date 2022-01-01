@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom";
 
-import CodeCell from "./components/code-cell";
+// import CodeCell from "./components/code-cell";
+import TextEditor from "./components/text-editor";
 
 // CSS
 import "bulmaswatch/superhero/bulmaswatch.min.css";
@@ -8,7 +9,8 @@ import "bulmaswatch/superhero/bulmaswatch.min.css";
 const App = () => {
   return (
     <div>
-      <CodeCell />
+      {/* <CodeCell /> */}
+      <TextEditor />
     </div>
   );
 };
